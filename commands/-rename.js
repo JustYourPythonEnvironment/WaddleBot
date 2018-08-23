@@ -6,10 +6,10 @@ const { HELP, HELP_SHORT } = require('../assets/flags.json');
 
 const configuration = {
   enabled: true,
-  name: '-add',
-  aliases: [ '-a' ],
-  description: 'Saves a media to <NAME>',
-  usage: '-add <NAME> <MEDIA>',
+  name: '-rename',
+  aliases: [ '-rn' ],
+  description: 'Renames a media from <OLD_NAME> to <NEW_NAME>',
+  usage: '-rename <OLD_NAME> <NEW_NAME>',
 };
 
 module.exports = {
@@ -21,16 +21,15 @@ module.exports = {
       helpEmbed(message, configuration);
       Utils.errAndMsg(message.channel, 'Invalid arguments.');
     } else {
-      database.ref(`reactions/${args[0]}`).set({
-          media: args[1],
-          addedBy: {
-            id: message.author.id,
-            username: message.author.username
-          },
-          timestamp: firebase.database.ServerValue.TIMESTAMP
-        })
-        .then(() => message.channel.send(`I've set ${args[1]} to ${args[0]}!`))
-        .catch(err => Utils.errAndMsg(message.channel, err));;
+      const oldMedia = database.ref(`reactions/${args[0]}`);
+      oldMedia.once('value')
+        .then(snapshot => {
+          database.ref(`reactions/${args[1]}`).set(snapshot.val())
+            .then(() => {
+              oldMedia.remove()
+                .then(() => message.channel.send(`I've renamed ${args[0]} to ${args[1]}!`));
+            })
+        }).catch(err => Utils.errAndMsg(message.channel, err));
     }
     return;
   },
