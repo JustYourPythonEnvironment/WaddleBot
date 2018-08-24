@@ -19,8 +19,12 @@ module.exports = {
       helpEmbed(message, configuration);
       Utils.errAndMsg(message.channel, 'Invalid arguments.');
     } else {
-      client.database.ref(`reactions/${args[0]}/media`).once('value')
-        .then(snapshot => message.channel.send(snapshot.val()))
+      client.database.ref(`aliases/${args[0]}`).once('value')
+        .then(aliasSnapShot => {
+          client.database.ref(`reactions/${aliasSnapShot.val()}/media`).once('value')
+            .then(mediaSnapShot => message.channel.send(mediaSnapShot.val()))
+            .catch(err => Utils.errAndMsg(message.channel, err));
+        })
         .catch(err => Utils.errAndMsg(message.channel, err));
     }
     return;
