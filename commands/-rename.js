@@ -22,25 +22,20 @@ module.exports = {
       client.database.ref(`aliases/${args[0]}`).once('value')
         .then(aliasSnapShot => {
           const mediaName = aliasSnapShot.val();
-          const oldMediaRef = client.database.ref(`reactions/${mediaName}`);
-          oldMediaRef.once('value')
+          client.database.ref(`reactions/${mediaName}`).once('value')
             .then(snapshot => {
+              let updateData = {};
               const oldMedia = snapshot.val();
               if (oldMedia.aliases) oldMedia.aliases.forEach(arg => {updateData[`aliases/${arg}`] = null;});
               const newAliases = args.slice(2);
               oldMedia.aliases = newAliases;
-              let updateData = {};
-              updateData[`reactions/${args[1]}`] = oldMedia;
               updateData[`reactions/${mediaName}`] = null;
+              updateData[`reactions/${args[1]}`] = oldMedia;
               updateData[`aliases/${mediaName}`] = null;
               updateData[`aliases/${args[1]}`] = args[1];
               if (newAliases) newAliases.forEach(arg => updateData[`aliases/${arg}`] = args[1]);
               client.database.ref().update(updateData)
-                .then(() => {
-                  oldMediaRef.remove()
-                    .then(() => message.channel.send(`I've renamed ${mediaName} to ${args[1]}!`))
-                    .catch(err => Utils.errAndMsg(message.channel, err));
-                })
+                .then(() => message.channel.send(`I've renamed ${mediaName} to ${args[1]}!`))
                 .catch(err => Utils.errAndMsg(message.channel, err));
             }).catch(err => Utils.errAndMsg(message.channel, err));
         }).catch(err => Utils.errAndMsg(message.channel, err));
