@@ -26,7 +26,7 @@ module.exports = {
           oldMediaRef.once('value')
             .then(snapshot => {
               const oldMedia = snapshot.val();
-              const aliases = oldMedia.aliases.slice();
+              if (oldMedia.aliases) oldMedia.aliases.forEach(arg => {updateData[`aliases/${arg}`] = null;});
               const newAliases = args.slice(2);
               oldMedia.aliases = newAliases;
               let updateData = {};
@@ -34,8 +34,7 @@ module.exports = {
               updateData[`reactions/${mediaName}`] = null;
               updateData[`aliases/${mediaName}`] = null;
               updateData[`aliases/${args[1]}`] = args[1];
-              aliases.forEach(arg => {updateData[`aliases/${arg}`] = null;});
-              newAliases.forEach(arg => updateData[`aliases/${arg}`] = args[1]);
+              if (newAliases) newAliases.forEach(arg => updateData[`aliases/${arg}`] = args[1]);
               client.database.ref().update(updateData)
                 .then(() => {
                   oldMediaRef.remove()

@@ -5,7 +5,7 @@ module.exports = (channel, name, info, user) => {
   const embed = new RichEmbed()
     .setTitle(name)
     .addField('**Source**', info.media)
-    .addField('**Aliases**', info.aliases)
+    .addField('**Aliases**', info.aliases || 'N/A')
     .addField('**Created By**', `${user}`)
     .addField('**Timestamp**', getHumanReadableDateTime(info.timestamp));
 

@@ -28,7 +28,7 @@ module.exports = {
               let updateData = {};
               updateData[`reactions/${mediaName}`] = null;
               updateData[`aliases/${mediaName}`] = null;
-              aliases.forEach(arg => updateData[`aliases/${arg}`] = null);
+              if (aliases) aliases.forEach(arg => updateData[`aliases/${arg}`] = null);
               client.database.ref().update(updateData)
                 .then(() => message.channel.send(`I've removed ${args[0]}!`))
                 .catch(err => Utils.errAndMsg(message.channel, err));
