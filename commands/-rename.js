@@ -1,5 +1,3 @@
-const firebase = require("firebase");
-const database = firebase.database();
 const helpEmbed = require('../embeds/helpEmbed.js');
 const Utils = require('../utils/Utils.js');
 const { HELP, HELP_SHORT } = require('../assets/flags.json');
@@ -24,7 +22,7 @@ module.exports = {
       const oldMedia = database.ref(`reactions/${args[0]}`);
       oldMedia.once('value')
         .then(snapshot => {
-          database.ref(`reactions/${args[1]}`).set(snapshot.val())
+          client.database.ref(`reactions/${args[1]}`).set(snapshot.val())
             .then(() => {
               oldMedia.remove()
                 .then(() => message.channel.send(`I've renamed ${args[0]} to ${args[1]}!`));

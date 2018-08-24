@@ -17,7 +17,10 @@ firebase.initializeApp({
   storageBucket: process.env.DB_STORAGE_BUCKET,
 });
 
+const database = firebase.database();
+
 client.config = config;
+client.database = database;
 client.commands = new Discord.Collection();
 client.aliases = new Discord.Collection();
 
@@ -26,6 +29,7 @@ fs.readdir(COMMANDS_DIR, (err, files) => {
     console.error(err);
   } else {
     files.forEach(f => {
+      /* eslint-disable-next-line import/no-dynamic-require, global-require */
       const props = require(`${COMMANDS_DIR}${f}`);
       if (props.conf.enabled) {
         client.commands.set(props.conf.name, props);

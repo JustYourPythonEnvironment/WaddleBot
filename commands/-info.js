@@ -1,4 +1,3 @@
-const database = require("firebase").database();
 const helpEmbed = require('../embeds/helpEmbed.js');
 const savedMediaEmbed = require('../embeds/savedMediaEmbed.js');
 const Utils = require('../utils/Utils.js');
@@ -21,9 +20,13 @@ module.exports = {
       helpEmbed(message, configuration);
       Utils.errAndMsg(message.channel, 'Invalid arguments.');
     } else {
-      database.ref(`reactions/${args[0]}`).once('value')
-        .then(snapshot => savedMediaEmbed(message.channel, snapshot.key, snapshot.val()))
-        .catch(err => Utils.errAndMsg(message.channel, err));
+      client.database.ref(`reactions/${args[0]}`).once('value')
+        .then(async snapshot => {
+          const name = snapshot.key;
+          const info = snapshot.val();
+          const user = await client.fetchUser(info.addedBy.id).catch((err) => { console.log(err); }) || 'Unknown User';
+          savedMediaEmbed(message.channel, name, info, user);
+        }).catch(err => Utils.errAndMsg(message.channel, err));
     }
     return;
   },

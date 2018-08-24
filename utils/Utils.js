@@ -1,4 +1,5 @@
 const errorPhrases = require('../assets/errorPhrases.json');
+const moment = require('moment');
 
 logAndMsg = (channel, msg) => {
   console.log(msg);
@@ -29,10 +30,19 @@ handleCommand = (client, message) => {
   }
 };
 
+getUnixTimestamp = () => {
+  return moment().valueOf();
+}
+
+getHumanReadableDateTime = (datetime) => {
+  return moment(datetime).format("dddd, MMMM Do YYYY, h:mm:ssA");
+}
 
 module.exports = {
   logAndMsg,
   getRandomIndex,
   errAndMsg,
   handleCommand,
+  getUnixTimestamp,
+  getHumanReadableDateTime,
 };

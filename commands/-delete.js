@@ -1,4 +1,3 @@
-const database = require("firebase").database();
 const helpEmbed = require('../embeds/helpEmbed.js');
 const Utils = require('../utils/Utils.js');
 const { HELP, HELP_SHORT } = require('../assets/flags.json');
@@ -20,7 +19,7 @@ module.exports = {
       helpEmbed(message, configuration);
       Utils.errAndMsg(message.channel, 'Invalid arguments.');
     } else {
-      database.ref(`reactions/${args[0]}`).remove()
+      client.database.ref(`reactions/${args[0]}`).remove()
         .then(() => message.channel.send(`I've removed ${args[0]}!`))
         .catch(err => Utils.errAndMsg(message.channel, err));;
     }
