@@ -20,12 +20,17 @@ module.exports = {
       helpEmbed(message, configuration);
       Utils.errAndMsg(message.channel, 'Invalid arguments.');
     } else {
-      client.database.ref(`reactions/${args[0]}`).once('value')
-        .then(async snapshot => {
-          const name = snapshot.key;
-          const info = snapshot.val();
-          const user = await client.fetchUser(info.addedBy.id).catch((err) => { console.log(err); }) || 'Unknown User';
-          savedMediaEmbed(message.channel, name, info, user);
+      client.database.ref(`aliases/${args[0]}`).once('value')
+        .then(aliasSnapShot => {
+          client.database.ref(`reactions/${aliasSnapShot.val()}`).once('value')
+            .then(async snapshot => {
+              const name = snapshot.key;
+              const info = snapshot.val();
+              const user = await client.fetchUser(info.addedBy.id).catch((err) => {
+                  console.log(err);
+                }) || 'Unknown User';
+              savedMediaEmbed(message.channel, name, info, user);
+            }).catch(err => Utils.errAndMsg(message.channel, err));
         }).catch(err => Utils.errAndMsg(message.channel, err));
     }
     return;
