@@ -19,26 +19,29 @@ module.exports = {
       helpEmbed(message, configuration);
       Utils.errAndMsg(message.channel, 'Invalid arguments.');
     } else {
-      client.database.ref(`aliases/${args[0]}`).once('value')
-        .then(aliasSnapShot => {
-          const mediaName = aliasSnapShot.val();
-          client.database.ref(`reactions/${mediaName}`).once('value')
-            .then(snapshot => {
-              let updateData = {};
-              const oldMedia = snapshot.val();
-              if (oldMedia.aliases) oldMedia.aliases.forEach(arg => {updateData[`aliases/${arg}`] = null;});
-              const newAliases = args.slice(2);
-              oldMedia.aliases = newAliases;
-              updateData[`reactions/${mediaName}`] = null;
-              updateData[`reactions/${args[1]}`] = oldMedia;
-              updateData[`aliases/${mediaName}`] = null;
-              updateData[`aliases/${args[1]}`] = args[1];
-              if (newAliases) newAliases.forEach(arg => updateData[`aliases/${arg}`] = args[1]);
-              client.database.ref().update(updateData)
-                .then(() => message.channel.send(`I've renamed ${mediaName} to ${args[1]}!`))
-                .catch(err => Utils.errAndMsg(message.channel, err));
-            }).catch(err => Utils.errAndMsg(message.channel, err));
-        }).catch(err => Utils.errAndMsg(message.channel, err));
+      try {
+        const aliasSnapshot = await client.database.ref(`aliases/${args[0]}`).once('value');
+        const mediaName = aliasSnapshot.val();
+        const mediaSnapshot = await client.database.ref(`reactions/${mediaName}`).once('value');
+        const media = mediaSnapshot.val();
+
+        // aggregates all the necessary updates in updateData for atomic operation
+        let updateData = {};
+        if (media.aliases) media.aliases.forEach(arg => {updateData[`aliases/${arg}`] = null;});
+        const newAliases = args.slice(2);
+        media.aliases = newAliases;
+        updateData[`reactions/${mediaName}`] = null;
+        updateData[`reactions/${args[1]}`] = media;
+        updateData[`aliases/${mediaName}`] = null;
+        updateData[`aliases/${args[1]}`] = args[1];
+        if (newAliases) newAliases.forEach(arg => updateData[`aliases/${arg}`] = args[1]);
+
+        await client.database.ref().update(updateData);
+        message.channel.send(`I've renamed ${mediaName} to ${args[1]}!`);
+      } catch (err) {
+        console.error(err);
+        message.channel.send(`TT! I couldn't rename ${args[0]} to ${args[1]} because: ${err}`);
+      }
     }
     return;
   },

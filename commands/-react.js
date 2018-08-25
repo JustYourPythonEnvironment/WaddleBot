@@ -19,13 +19,14 @@ module.exports = {
       helpEmbed(message, configuration);
       Utils.errAndMsg(message.channel, 'Invalid arguments.');
     } else {
-      client.database.ref(`aliases/${args[0]}`).once('value')
-        .then(aliasSnapShot => {
-          client.database.ref(`reactions/${aliasSnapShot.val()}/media`).once('value')
-            .then(mediaSnapShot => message.channel.send(mediaSnapShot.val()))
-            .catch(err => Utils.errAndMsg(message.channel, err));
-        })
-        .catch(err => Utils.errAndMsg(message.channel, err));
+      try {
+        const aliasSnapshot = await client.database.ref(`aliases/${args[0]}`).once('value');
+        const mediaSnapshot = await client.database.ref(`reactions/${aliasSnapshot.val()}/media`).once('value');
+        message.channel.send(mediaSnapshot.val());
+      } catch (err) {
+        console.error(err);
+        message.channel.send(`TT! I can't find ${args[0]}!`);
+      }
     }
     return;
   },
