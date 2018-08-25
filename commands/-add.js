@@ -20,6 +20,8 @@ module.exports = {
       Utils.errAndMsg(message.channel, 'Invalid arguments.');
     } else {
       let aliases = args.slice(2);
+
+      // aggregates all the necessary updates in updateData for atomic operation
       let updateData = {};
       updateData[`reactions/${args[0]}`] = {
         media: args[1],
@@ -32,9 +34,14 @@ module.exports = {
       };
       updateData[`aliases/${args[0]}`] = args[0];
       aliases.forEach(arg => updateData[`aliases/${arg}`] = args[0]);
-      client.database.ref().update(updateData)
-        .then(() => message.channel.send(`I've set ${args[1]} to ${args[0]}!`))
-        .catch(err => Utils.errAndMsg(message.channel, err));;
+
+      try {
+        await client.database.ref().update(updateData);
+        message.channel.send(`I've set ${args[1]} to ${args[0]}!`)
+      } catch (err) {
+        console.error(err);
+        message.channel.send(`TT! I couldn't add ${args[0]} because: ${err}`);
+      }
     }
     return;
   },

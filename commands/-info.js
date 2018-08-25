@@ -20,18 +20,17 @@ module.exports = {
       helpEmbed(message, configuration);
       Utils.errAndMsg(message.channel, 'Invalid arguments.');
     } else {
-      client.database.ref(`aliases/${args[0]}`).once('value')
-        .then(aliasSnapShot => {
-          client.database.ref(`reactions/${aliasSnapShot.val()}`).once('value')
-            .then(async snapshot => {
-              const name = snapshot.key;
-              const info = snapshot.val();
-              const user = await client.fetchUser(info.addedBy.id).catch((err) => {
-                  console.log(err);
-                }) || 'Unknown User';
-              savedMediaEmbed(message.channel, name, info, user);
-            }).catch(err => Utils.errAndMsg(message.channel, err));
-        }).catch(err => Utils.errAndMsg(message.channel, err));
+      try {
+        const aliasSnapshot = await client.database.ref(`aliases/${args[0]}`).once('value');
+        const mediaSnapshot = await client.database.ref(`reactions/${aliasSnapshot.val()}`).once('value');
+        const name = mediaSnapshot.key;
+        const info = mediaSnapshot.val();
+        const user = await client.fetchUser(info.addedBy.id).catch(console.error) || 'Unknown User';
+        savedMediaEmbed(message.channel, name, info, user);
+      } catch (err) {
+        console.error(err);
+        message.channel.send(`TT! I can't find ${args[0]}!`);
+      }
     }
     return;
   },

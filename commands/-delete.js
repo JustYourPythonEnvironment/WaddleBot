@@ -19,21 +19,24 @@ module.exports = {
       helpEmbed(message, configuration);
       Utils.errAndMsg(message.channel, 'Invalid arguments.');
     } else {
-      client.database.ref(`aliases/${args[0]}`).once('value')
-        .then(aliasSnapShot => {
-          const mediaName = aliasSnapShot.val();
-          client.database.ref(`reactions/${mediaName}`).once('value')
-            .then(snapshot => {
-              const aliases = snapshot.val().aliases;
-              let updateData = {};
-              updateData[`reactions/${mediaName}`] = null;
-              updateData[`aliases/${mediaName}`] = null;
-              if (aliases) aliases.forEach(arg => updateData[`aliases/${arg}`] = null);
-              client.database.ref().update(updateData)
-                .then(() => message.channel.send(`I've removed ${args[0]}!`))
-                .catch(err => Utils.errAndMsg(message.channel, err));
-            }).catch(err => Utils.errAndMsg(message.channel, err));
-        }).catch(err => Utils.errAndMsg(message.channel, err));
+      try {
+        const aliasSnapshot = await client.database.ref(`aliases/${args[0]}`).once('value');
+        const mediaName = aliasSnapshot.val();
+        const mediaSnapshot = await client.database.ref(`reactions/${mediaName}`).once('value');
+        const aliases = mediaSnapshot.val().aliases;
+
+        // aggregates all the necessary updates in updateData for atomic operation
+        let updateData = {};
+        updateData[`reactions/${mediaName}`] = null;
+        updateData[`aliases/${mediaName}`] = null;
+        if (aliases) aliases.forEach(arg => updateData[`aliases/${arg}`] = null);
+
+        await client.database.ref().update(updateData);
+        message.channel.send(`I've removed ${args[0]}!`);
+      } catch (err) {
+        console.error(err);
+        message.channel.send(`TT! I couldn't remove ${args[0]} because: ${err}`);
+      }
     }
     return;
   },
