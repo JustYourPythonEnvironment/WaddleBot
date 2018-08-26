@@ -8,6 +8,8 @@
   },
   "scripts": {
     "start": "nodemon bot.js",
+    "rebuildDocker": "docker build -t ifalluphill/waddle-bot .",
+    "startDocker": "docker run -p 3000:80 -v ${PWD}:/app ifalluphill/waddle-bot",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -17,7 +19,9 @@
     "dotenv": "^6.0.0",
     "firebase": "^5.4.0",
     "lodash": "^4.17.10",
-    "moment": "^2.22.2",
+    "moment": "^2.22.2"
+  },
+  "devDependencies": {
     "nodemon": "^1.18.3"
   }
 }
