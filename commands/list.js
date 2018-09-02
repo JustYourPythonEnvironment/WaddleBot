@@ -5,10 +5,10 @@ const { HELP, HELP_SHORT } = require('../assets/flags.json');
 
 const configuration = {
   enabled: true,
-  name: '-list',
-  aliases: [ '-l' ],
+  name: 'list',
+  aliases: [ 'l' ],
   description: 'lists all of the saved media.',
-  usage: '-list',
+  usage: 'list',
 };
 
 module.exports = {

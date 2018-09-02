@@ -4,10 +4,10 @@ const { HELP, HELP_SHORT } = require('../assets/flags.json');
 
 const configuration = {
   enabled: true,
-  name: '-rename',
-  aliases: [ '-rn' ],
+  name: 'rename',
+  aliases: [ 'rn' ],
   description: 'Renames a media from <OLD_NAME> to <NEW_NAME> with <NEW_ALIASES>. Note that this will remove old aliases',
-  usage: '-rename <OLD_NAME> <NEW_NAME> <NEW_ALIASES>',
+  usage: 'rename <OLD_NAME> <NEW_NAME> <NEW_ALIASES>',
 };
 
 module.exports = {

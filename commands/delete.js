@@ -4,10 +4,10 @@ const { HELP, HELP_SHORT } = require('../assets/flags.json');
 
 const configuration = {
   enabled: true,
-  name: '-delete',
-  aliases: [ '-d' ],
+  name: 'delete',
+  aliases: [ 'd' ],
   description: 'Deletes a media by name',
-  usage: '-delete <NAME>',
+  usage: 'delete <NAME>',
 };
 
 module.exports = {

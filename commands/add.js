@@ -4,10 +4,10 @@ const { HELP, HELP_SHORT } = require('../assets/flags.json');
 
 const configuration = {
   enabled: true,
-  name: '-add',
-  aliases: [ '-a' ],
+  name: 'add',
+  aliases: [ 'a' ],
   description: 'Saves a media to <NAME> with aliases <ALIASES>',
-  usage: '-add <NAME> <MEDIA> <ALIASES>',
+  usage: 'add <NAME> <MEDIA> <ALIASES>',
 };
 
 module.exports = {

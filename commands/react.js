@@ -4,10 +4,10 @@ const { HELP, HELP_SHORT } = require('../assets/flags.json');
 
 const configuration = {
   enabled: true,
-  name: '-update',
-  aliases: [ '-u' ],
-  description: 'updates with a saved media with a new source.',
-  usage: '-update <NAME> <NEW_SOURCE_URL>',
+  name: 'react',
+  aliases: [ 'r' ],
+  description: 'reacts with a saved media.',
+  usage: 'react <NAME>',
 };
 
 module.exports = {
@@ -15,17 +15,17 @@ module.exports = {
 
   run: async (client, message, args) => {
 
-    if (args[0] === HELP || args[0] === HELP_SHORT || args.length < 2) {
+    if (args[0] === HELP || args[0] === HELP_SHORT || args.length < 1) {
       helpEmbed(message, configuration);
       Utils.errAndMsg(message.channel, 'Invalid arguments.');
     } else {
       try {
         const aliasSnapshot = await client.database.ref(`aliases/${args[0]}`).once('value');
-        await client.database.ref(`reactions/${aliasSnapshot.val()}`).update({ media: args[1] });
-        message.channel.send(`I've updated ${args[0]} with ${args[1]}`);
+        const mediaSnapshot = await client.database.ref(`reactions/${aliasSnapshot.val()}/media`).once('value');
+        message.channel.send(mediaSnapshot.val());
       } catch (err) {
         console.error(err);
-        message.channel.send(`TT! I couldn't update ${args[0]} with ${args[1]} because: ${err}!`);
+        message.channel.send(`TT! I can't find ${args[0]}!`);
       }
     }
     return;
