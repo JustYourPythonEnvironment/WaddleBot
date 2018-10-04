@@ -26,10 +26,15 @@ module.exports = {
                 const mediaData = snapshot.val();
                 const sortedMediaNames = collection.groupBy(Object.keys(mediaData).filter(key => key.includes(searchKey)), results => 'results');
                 const results = sortedMediaNames.results;
-                message.channel.send(`I found ${results.length} reaction${results.length > 1 ? 's' : ''} that contained ${searchKey}: ${formatArrayAsList(results)}.`);
+                const numResults = results.length;
+                if (numResults > 0) {
+                    message.channel.send(`I found ${numResults} reaction${numResults > 1 ? 's' : ''} that contained ${searchKey}: ${formatArrayAsList(results)}.`);
+                } else {
+                    message.channel.send(`TT! I coudln't find any reactions containing ${searchTerm}!`);
+                }
             } catch (err) {
                 console.error(err);
-                message.channel.send(`TT! I coudln't find any reactions containing ${searchTerm}!`);
+                message.channel.send(`TT! I coudln't find any reactions containing ${searchTerm} because: ${err}`);
             }
         }
         return;
