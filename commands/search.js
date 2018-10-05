@@ -20,11 +20,11 @@ module.exports = {
             helpEmbed(message, configuration);
             Utils.errAndMsg(message.channel, 'Invalid arguments.');
         } else {
-            const searchKey = args[0];
+            const searchKey = args[0].toLowerCase();
             try {
                 const snapshot = await client.database.ref(`reactions/`).orderByKey().once('value');
                 const mediaData = snapshot.val();
-                const sortedMediaNames = collection.groupBy(Object.keys(mediaData).filter(key => key.includes(searchKey)), results => 'results');
+                const sortedMediaNames = collection.groupBy(Object.keys(mediaData).filter(key => key.toLowerCase().includes(searchKey)), results => 'results');
                 const results = sortedMediaNames.results || [];
                 const numResults = results.length;
                 if (numResults > 0) {
