@@ -1,3 +1,4 @@
+const emojiRegex = require('emoji-regex');
 const helpEmbed = require('../embeds/helpEmbed.js');
 const Utils = require('../utils/Utils.js');
 const { HELP, HELP_SHORT } = require('../assets/flags.json');
@@ -10,6 +11,8 @@ const configuration = {
   usage: 'add <NAME> <MEDIA> <ALIASES>',
 };
 
+const regex = emojiRegex();
+
 module.exports = {
   conf: configuration,
 
@@ -18,6 +21,8 @@ module.exports = {
     if (args[0] === HELP || args[0] === HELP_SHORT || args.length < 2) {
       helpEmbed(message, configuration);
       Utils.errAndMsg(message.channel, 'Invalid arguments.');
+    } else if (args.filter(arg => regex.exec(arg)).length > 0) {
+      message.channel.send('Reaction names may not contain emojis. Please try again.')
     } else {
       let aliases = args.slice(2);
 

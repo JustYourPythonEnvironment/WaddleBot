@@ -30,6 +30,7 @@ module.exports = {
           },
           fields: Object.keys(sortedMediaNames).map(key => { return { name: key, value: sortedMediaNames[key].join(', ') } })
         };
+        console.log(embed)
         message.channel.send({ embed });
       } catch (err) {
         console.error(err);
