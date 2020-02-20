@@ -33,7 +33,7 @@ module.exports = {
         try {
           const aliasSnapshot = await client.database.ref(`aliases/${bestMatch}`).once('value');
           const mediaSnapshot = await client.database.ref(`reactions/${aliasSnapshot.val()}/media`).once('value');
-          message.channel.send(mediaSnapshot.val());
+          message.channel.send(mediaSnapshot.val() + ` (${bestMatch})`);
         } catch (err) {
           console.error(err);
           message.channel.send(`TT! I can't find ${args[0]}!`);
