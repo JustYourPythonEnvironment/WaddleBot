@@ -28,13 +28,17 @@ module.exports = {
         // find most similar reaction if not found
         const snapshot = await client.database.ref(`reactions/`).once('value');
         const mediaKeys = Object.keys(snapshot.val());
-        const bestMatch = stringSimilarity.findBestMatch(args[0], mediaKeys).bestMatch.target;
+        const bestMatch = stringSimilarity.findBestMatch(args[0], mediaKeys).bestMatch;
 
-        try {
-          const aliasSnapshot = await client.database.ref(`aliases/${bestMatch}`).once('value');
-          const mediaSnapshot = await client.database.ref(`reactions/${aliasSnapshot.val()}/media`).once('value');
-          message.channel.send(mediaSnapshot.val() + ` (${bestMatch})`);
-        } catch (err) {
+        if (bestMatch.rating > 0.3) {
+          try {
+            const aliasSnapshot = await client.database.ref(`aliases/${bestMatch.target}`).once('value');
+            const mediaSnapshot = await client.database.ref(`reactions/${aliasSnapshot.val()}/media`).once('value');
+            message.channel.send(mediaSnapshot.val() + ` (${bestMatch.target})`);
+          } catch (err) {
+            console.error(err);
+          }
+        } else {
           console.error(err);
           message.channel.send(`TT! I can't find ${args[0]}!`);
         }
