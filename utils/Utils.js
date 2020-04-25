@@ -1,5 +1,6 @@
 const errorPhrases = require('../assets/errorPhrases.json');
 const moment = require('moment');
+const collection = require('lodash/collection');
 
 logAndMsg = (channel, msg) => {
     console.log(msg);
@@ -31,7 +32,27 @@ formatArrayAsList = arr => {
         outStr = arr.slice(0, -1).join(', ') + ', and ' + arr.slice(-1);
     }
     return outStr;
-}
+};
+
+updateReactionsList = (snapshot, channel) => {
+    const mediaData = snapshot.val();
+    const sortedMediaNames = collection.groupBy(Object.keys(mediaData).filter(key => key !== 'TEMPLATE'), name => name[0].toLowerCase());
+    channel.fetchMessages().then(messages => {
+        for (const key of Object.keys(sortedMediaNames).sort()) {
+            const embed = {
+                title: key.match(/[a-z]/i) ? `:regional_indicator_${key}:` : key,
+                description: sortedMediaNames[key].reduce((acc, val) => acc + `, [${val}](${mediaData[val].media})`, '').substring(2),
+            };
+    
+            const msgToEdit = messages.find(msg => msg.embeds.length > 0 && msg.embeds[0].title === embed.title);
+            if (msgToEdit === null) {
+                channel.send({ embed: embed });
+            } else if (msgToEdit.embeds[0].description !== embed.description) {
+                msgToEdit.edit({ embed: embed });
+            }
+        }
+    });
+};
 
 
 module.exports = {
@@ -41,4 +62,5 @@ module.exports = {
     getUnixTimestamp,
     getHumanReadableDateTime,
     formatArrayAsList,
+    updateReactionsList,
 };
