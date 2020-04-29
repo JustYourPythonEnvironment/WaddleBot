@@ -37,21 +37,14 @@ formatArrayAsList = arr => {
 updateReactionsList = (snapshot, channel) => {
     const mediaData = snapshot.val();
     const sortedMediaNames = collection.groupBy(Object.keys(mediaData).filter(key => key !== 'TEMPLATE'), name => name[0].toLowerCase());
-    channel.fetchMessages().then(messages => {
-        for (const key of Object.keys(sortedMediaNames).sort()) {
-            const embed = {
-                title: key.match(/[a-z]/i) ? `:regional_indicator_${key}:` : key,
-                description: sortedMediaNames[key].reduce((acc, val) => acc + `, [${val}](${mediaData[val].media})`, '').substring(2),
-            };
-    
-            const msgToEdit = messages.find(msg => msg.embeds.length > 0 && msg.embeds[0].title === embed.title);
-            if (msgToEdit === null) {
-                channel.send({ embed: embed });
-            } else if (msgToEdit.embeds[0].description !== embed.description) {
-                msgToEdit.edit({ embed: embed });
-            }
-        }
-    });
+    channel.fetchMessages().then(messages => messages.forEach(msg => msg.delete()));
+    const embeds = Object.keys(sortedMediaNames).sort().map(key => ({
+        title: key.match(/[a-z]/i) ? `:regional_indicator_${key}:` : key,
+        description: sortedMediaNames[key].reduce((acc, val) => acc + `, [${val}](${mediaData[val].media})`, '').substring(2),
+    }));
+
+    // send in order
+    embeds.reduce((chain, embed) => chain.then(() => channel.send({ embed })), Promise.resolve());
 };
 
 
